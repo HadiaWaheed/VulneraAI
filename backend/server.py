@@ -28,7 +28,7 @@ CORS(app, expose_headers=["Content-Disposition"])
 
 BASE_DIR = Path(__file__).resolve().parent
 
-load_dotenv(BASE_DIR.parent / ".env")
+load_dotenv(BASE_DIR / ".env")
 
 # Which trained model to use. Relative paths are resolved from this folder.
 # Example in .env:  MODEL_DIR=model_v3

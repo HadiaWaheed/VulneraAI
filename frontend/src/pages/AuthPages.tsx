@@ -105,7 +105,7 @@ function AuthShell({
         </div>
 
         <p className="relative text-xs text-slate-600">
-          PolyGuard · AI-powered multi-language code scanner
+          VulneraAI · AI-powered multi-language code scanner
         </p>
       </div>
 

@@ -61,7 +61,7 @@ export function Logo({ compact = false }: { compact?: boolean }) {
       </div>
       {!compact && (
         <div>
-          <p className="text-[15px] font-semibold leading-tight tracking-tight text-foreground">PolyGuard</p>
+          <p className="text-[15px] font-semibold leading-tight tracking-tight text-foreground">VulneraAI</p>
           <p className="text-[11px] leading-tight text-slate-500">Code Vulnerability Scanner</p>
         </div>
       )}

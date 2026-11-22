@@ -19,6 +19,7 @@ import {
 
 import { useAuth } from "../context/AuthContext";
 import { Logo } from "../components/AppLayout";
+import { validatePassword } from "../lib/password";
 import { Alert, Button, Field, Input } from "../components/ui";
 
 function AuthShell({
@@ -338,8 +339,9 @@ export function ForgotPasswordPage() {
     setError("");
     setSuccess("");
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
 
@@ -511,7 +513,7 @@ export function ForgotPasswordPage() {
 
       {step === "reset" && (
         <form onSubmit={handleResetPassword} className="space-y-4">
-          <Field label="New password" hint="At least 8 characters.">
+          <Field label="New password" hint="8+ chars: uppercase, lowercase, number & symbol.">
             <PasswordInput
               autoComplete="new-password"
               required
@@ -577,8 +579,9 @@ export function SignupPage() {
     setError("");
     setSuccess("");
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
 
@@ -777,7 +780,7 @@ export function SignupPage() {
             />
           </Field>
 
-          <Field label="Password" hint="At least 8 characters.">
+          <Field label="Password" hint="8+ chars: uppercase, lowercase, number & symbol.">
             <PasswordInput
               autoComplete="new-password"
               required

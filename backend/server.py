@@ -27,16 +27,28 @@ from transformers import (
 
 app = Flask(__name__)
 
+BASE_DIR = Path(__file__).resolve().parent
+
+# Load environment first so CORS origins (and other settings) below can use it.
+load_dotenv(BASE_DIR / ".env")
+
 # Credentialed CORS is required because the frontend uses
 # fetch(..., credentials="include") for HttpOnly session cookies.
-# Keep this list limited to the exact local frontend origins.
+# Keep this list limited to the exact frontend origins. Override in .env:
+#   CORS_ORIGINS=https://app.example.com,https://admin.example.com
+CORS_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ORIGINS", "http://localhost:3000"
+    ).split(",")
+    if origin.strip()
+]
+
 CORS(
     app,
     resources={
         r"/api/*": {
-            "origins": [
-                "http://localhost:3000",
-            ]
+            "origins": CORS_ORIGINS
         }
     },
 
@@ -57,10 +69,6 @@ CORS(
     ],
     expose_headers=["Content-Disposition"],
 )
-
-BASE_DIR = Path(__file__).resolve().parent
-
-load_dotenv(BASE_DIR / ".env")
 
 # Which trained model to use. Relative paths are resolved from this folder.
 # Example in .env:  MODEL_DIR=model_v3

@@ -5,6 +5,7 @@ import { KeyRound, Trash2, UserRound } from "lucide-react";
 import { api } from "../lib/api";
 import { formatDateTime } from "../lib/format";
 import { useAuth } from "../context/AuthContext";
+import { validatePassword } from "../lib/password";
 import type { User } from "../types";
 import { Alert, Button, Card, Field, Input, PageHeader, cx, useToast } from "../components/ui";
 
@@ -116,7 +117,8 @@ function PasswordForm() {
     event.preventDefault();
     setError("");
 
-    if (next.length < 8) return setError("New password must be at least 8 characters.");
+    const passwordError = validatePassword(next);
+    if (passwordError) return setError(passwordError);
     if (next !== confirm) return setError("New passwords do not match.");
 
     setSaving(true);
@@ -136,7 +138,7 @@ function PasswordForm() {
 
   return (
     <Section icon={<KeyRound size={17} />} title="Password"
-      description="Use at least 8 characters. You stay logged in on this device after changing it.">
+      description="Use 8+ characters with uppercase, lowercase, a number and a symbol. You stay logged in on this device after changing it.">
       <form onSubmit={save} className="space-y-4">
         {error && <Alert>{error}</Alert>}
         <div className="max-w-md space-y-4">
@@ -144,7 +146,7 @@ function PasswordForm() {
             <Input type="password" autoComplete="current-password" required value={current}
               onChange={(e) => setCurrent(e.target.value)} />
           </Field>
-          <Field label="New password" hint="At least 8 characters.">
+          <Field label="New password" hint="8+ chars: uppercase, lowercase, number & symbol.">
             <Input type="password" autoComplete="new-password" required value={next}
               onChange={(e) => setNext(e.target.value)} />
           </Field>

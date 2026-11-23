@@ -58,7 +58,7 @@ The platform also provides secure user authentication, email verification, passw
 | **History** | Search previous scans, filter by result and language, sort records, pagination, individual scan details, deletion, and CSV export |
 | **Authentication** | User registration, email verification, secure login, session management, OTP resend, forgot password, and password reset |
 | **Account** | Profile updates, password changes, logout, and password-confirmed account deletion |
-| **Security** | HTTP-only session cookies, server-side sessions, CSRF protection, password hashing, and configurable cookie security |
+| **Security** | HTTP-only session cookies, server-side sessions, CSRF protection, password hashing, rate limiting, password policy, OTP attempt limits, and configurable cookie security |
 | **Interface** | Dark indigo workspace, responsive sidebar/mobile drawer, loading skeletons, notifications, empty states, and backend status polling |
 
 **Language options:** Python, JavaScript, TypeScript, Java, C++, C, Go, Swift, and "Auto detect." File extensions select a language when uploading; pasted code is not automatically classified by language. The language value provides explanation context and history metadata; it does not independently change model inference. Language options do not establish validated detection accuracy for each language.
@@ -78,7 +78,10 @@ The platform also provides secure user authentication, email verification, passw
 | **Forgot Password** | Sends a password-reset OTP to the registered email address. |
 | **Password Reset** | Verifies the OTP before allowing a password change. |
 | **Password Hashing** | Stores password hashes instead of plain-text passwords. |
-| **Logout** | Ends the authenticated session. |
+| **Password Policy** | Requires 8+ characters with uppercase, lowercase, a number and a symbol, and rejects common passwords. |
+| **Rate Limiting** | Limits repeated login, signup, OTP and password-reset attempts per IP. |
+| **OTP Attempt Limit** | Locks a verification or reset code after 5 wrong attempts; a new code must be requested. |
+| **Logout** | Ends the authenticated session and revokes it server-side, so the old cookie stops working. |
 
 ---
 
@@ -337,6 +340,9 @@ SESSION_EXPIRES_HOURS=24
 SESSION_COOKIE_SECURE=false
 SESSION_COOKIE_SAMESITE=Lax
 
+# CORS (comma-separated frontend origins)
+CORS_ORIGINS=http://localhost:3000
+
 # OTP security
 OTP_SECRET_KEY=your_generated_otp_secret
 
@@ -363,6 +369,7 @@ VITE_API_URL=http://localhost:5000
 - `SESSION_EXPIRES_HOURS`: Configures the intended session lifetime.
 - `SESSION_COOKIE_SECURE`: Set to `true` for HTTPS production deployments.
 - `SESSION_COOKIE_SAMESITE`: Configures the cookie SameSite policy.
+- `CORS_ORIGINS`: Comma-separated frontend origins allowed by CORS (default `http://localhost:3000`; set your real domain in production).
 - `OTP_SECRET_KEY`: Private secret used by the OTP implementation.
 - `GEMINI_API_KEY`: Enables AI-generated explanations.
 - `MODEL_DIR`: Selects the model directory.
@@ -631,6 +638,10 @@ VulneraAI includes several security mechanisms designed to protect user accounts
 | Session Management | Maintains and manages user sessions in PostgreSQL. |
 | Password Reset OTP | Adds email verification to the password recovery process. |
 | CORS Configuration | Controls allowed frontend origins. |
+| Password Policy | Enforces password strength on signup, change and reset. |
+| Rate Limiting | Blocks brute-force attempts with per-endpoint request limits. |
+| OTP Attempt Limits | Restricts how many wrong codes are accepted before lockout. |
+| Session Revocation | Logout deletes the server-side session, invalidating the cookie. |
 
 ### Recommended security checks
 
@@ -653,7 +664,7 @@ VulneraAI includes several security mechanisms designed to protect user accounts
 - **Risk labels are derived.** High and low risk labels are based on the prediction rather than a separately trained severity estimator.
 - **External explanation service.** AI explanations depend on the configured LLM API and its availability.
 - **Language coverage.** Language options provide context but do not establish equal model accuracy across languages.
-- **Production hardening.** HTTPS, Secure cookie settings, restrictive CORS, rate limiting and secret management should be reviewed before public hosting.
+- **Production hardening.** HTTPS, Secure cookie settings, moving CORS origins to the production domain, a Redis storage backend for rate limiting, and secret management should be reviewed before public hosting.
 - **Security verification.** Cookie flags, CSRF rejection, session invalidation and other negative security tests should be verified independently.
 - **Database migrations.** A versioned migration strategy is recommended as the database schema evolves.
 

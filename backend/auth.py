@@ -108,6 +108,47 @@ password_reset_otps = {}
 # General helpers
 # --------------------------------------------------
 
+# Password policy shared by signup, change-password and reset-password.
+# Keep in sync with frontend/src/lib/password.ts.
+COMMON_PASSWORDS = {
+    "password", "passw0rd", "12345678", "123456789", "1234567890",
+    "qwertyui", "qwerty123", "iloveyou", "welcome1", "admin123",
+    "letmein1", "abc12345", "password1", "sunshine", "princess",
+    "football", "monkey123", "dragon123", "trustno1", "superman",
+    "starwars", "whatever", "zaq12wsx", "qazwsxed", "1q2w3e4r",
+    "1qaz2wsx", "baseball", "michael1", "shadow123", "ashley123",
+    "jordan23", "hunter02", "harley123", "ranger123", "buster123",
+    "thomas123", "robert123", "soccer123", "batman123", "test1234",
+    "summer2024", "winter2024", "spring2024", "autumn2024",
+    "changeme", "letmein123", "welcome123", "admin1234", "root1234",
+    "user1234", "demo1234", "vulneraai", "vulneraai1", "polyguard",
+    "polyguard1",
+}
+
+
+def validate_password(password: str) -> str | None:
+    """Return an error message when the password fails the policy.
+
+    Policy: at least 8 characters with an uppercase letter, a lowercase
+    letter, a number and a symbol, and not a known common password.
+    Returns None when the password is acceptable.
+    """
+    if len(password) < MIN_PASSWORD_LENGTH:
+        return (
+            f"Password must be at least {MIN_PASSWORD_LENGTH} characters."
+        )
+    if not re.search(r"[A-Z]", password):
+        return "Password must include an uppercase letter."
+    if not re.search(r"[a-z]", password):
+        return "Password must include a lowercase letter."
+    if not re.search(r"[0-9]", password):
+        return "Password must include a number."
+    if not re.search(r"[^A-Za-z0-9]", password):
+        return "Password must include a symbol."
+    if password.lower() in COMMON_PASSWORDS:
+        return "This password is too common. Please choose another."
+    return None
+
 def error(message, status):
     return jsonify({"error": message}), status
 
@@ -684,11 +725,9 @@ def signup():
     if not EMAIL_PATTERN.match(email):
         return error("Please enter a valid email address.", 400)
 
-    if len(password) < MIN_PASSWORD_LENGTH:
-        return error(
-            f"Password must be at least {MIN_PASSWORD_LENGTH} characters.",
-            400,
-        )
+    password_error = validate_password(password)
+    if password_error:
+        return error(password_error, 400)
 
     existing_user = SessionLocal.execute(
         select(User).where(func.lower(User.email) == email)
@@ -1002,11 +1041,9 @@ def change_password():
     ):
         return error("Current password is incorrect.", 400)
 
-    if len(new_password) < MIN_PASSWORD_LENGTH:
-        return error(
-            f"New password must be at least {MIN_PASSWORD_LENGTH} characters.",
-            400,
-        )
+    password_error = validate_password(new_password)
+    if password_error:
+        return error(password_error, 400)
 
     user_id = g.user.id
 
@@ -1220,11 +1257,9 @@ def reset_password():
     if not re.fullmatch(r"\d{6}", code):
         return error("Please enter the 6-digit reset code.", 400)
 
-    if len(new_password) < MIN_PASSWORD_LENGTH:
-        return error(
-            f"Password must be at least {MIN_PASSWORD_LENGTH} characters.",
-            400,
-        )
+    password_error = validate_password(new_password)
+    if password_error:
+        return error(password_error, 400)
 
     record = password_reset_otps.get(email)
 

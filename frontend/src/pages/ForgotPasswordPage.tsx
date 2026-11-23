@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import { useAuth } from "../context/AuthContext";
+import { validatePassword } from "../lib/password";
 import { Alert, Button, Field, Input } from "../components/ui";
 import ThemeToggle from "../components/ThemeToggle";
 
@@ -94,8 +95,9 @@ export function ForgotPasswordPage() {
     setError("");
     setSuccess("");
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
 
@@ -280,7 +282,7 @@ export function ForgotPasswordPage() {
             onSubmit={handleResetPassword}
             className="mt-8 space-y-5"
           >
-            <Field label="New password" hint="At least 8 characters.">
+            <Field label="New password" hint="8+ chars: uppercase, lowercase, number & symbol.">
               <Input
                 type="password"
                 autoComplete="new-password"

@@ -184,7 +184,7 @@ Secure user login interface with a modern authentication layout.
 
 The main dashboard displays scan statistics, activity, security results, and recent scanning information.
 
-![VulneraAI Dashboard](docs/screenshots/Dashboard.png)
+![VulneraAI Dashboard](docs/screenshots/dashboard.png)
 
 ### Code Scanner
 
@@ -196,7 +196,7 @@ The scanning workspace allows users to submit source code for vulnerability anal
 
 The history workspace helps users review and manage their previously saved scans.
 
-![VulneraAI Scan History](docs/screenshots/History.png)
+![VulneraAI Scan History](docs/screenshots/history.png)
 
 ---
 

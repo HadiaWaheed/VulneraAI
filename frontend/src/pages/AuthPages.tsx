@@ -55,7 +55,7 @@ function AuthShell({
           </h2>
 
           <p className="mt-4 text-[15px] leading-7 text-slate-400">
-            A fine-tuned GraphCodeBERT model classifies your snippet, and Gemini
+            A fine-tuned model classifies your snippet, and
             explains the result with suggested fixes.
           </p>
 
